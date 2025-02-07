@@ -3,14 +3,10 @@ const app = express();
 const connectDB = require('./config/database');
 const User = require('./models/user');
 
+app.use(express.json())
+
 app.post('/signup', async (req, res) => {
-    const user = new User({
-        firstName: "Nishant",
-        lastName: "yadav",
-        email: "ny@y.com",
-        password: "ny123",
-        age: 25
-    })
+    const user = new User(req.body)
 
     try {
         await user.save();
@@ -18,6 +14,16 @@ app.post('/signup', async (req, res) => {
     } catch (error) {
         res.status(400).send("User not added: " + error.message)
     }
+})
+
+app.get('/feed', async (req, res) => {
+    try {
+        const users = await User.find({})
+        res.json(users)
+    } catch (error) {
+        res.status(400).send("Something went wrong")
+    }
+
 })
 
 connectDB().then(() => {
