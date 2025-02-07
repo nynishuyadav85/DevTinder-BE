@@ -43,6 +43,17 @@ app.get('/feed', async (req, res) => {
 
 })
 
+app.delete('/user', async (req, res) => {
+    const emailId = req.body.email;
+
+    try {
+        console.log(emailId)
+        await User.findOneAndDelete({ email: emailId })
+        res.send("user Deleted")
+    } catch (error) {
+        res.status(400).send("Something went wrong")
+    }
+})
 
 
 
