@@ -55,6 +55,18 @@ app.delete('/user', async (req, res) => {
     }
 })
 
+app.patch('/user', async (req, res) => {
+    const emailId = req.body.email
+    const data = req.body
+
+    try {
+        await User.findOneAndUpdate({ email: emailId }, data)
+        res.send("User Data updated")
+    } catch (error) {
+        res.status(400).send("Something went wrong")
+    }
+})
+
 
 
 
