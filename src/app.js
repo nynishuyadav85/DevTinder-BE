@@ -55,15 +55,34 @@ app.delete('/user', async (req, res) => {
     }
 })
 
-app.patch('/user', async (req, res) => {
-    const emailId = req.body.email
+app.patch('/user/:userId', async (req, res) => {
+    const userId = req.params.userId
     const data = req.body
+    console.log(userId)
 
     try {
-        await User.findOneAndUpdate({ email: emailId }, data)
+        const ALLOWED_UPDATES = [
+            "age",
+            "photoUrl",
+            "about",
+            "gender",
+            "skills"
+        ];
+        const isUpdateAllowed = Object.keys(data).every((k) =>
+            ALLOWED_UPDATES.includes(k)
+        )
+        console.log(isUpdateAllowed)
+        if (!isUpdateAllowed) {
+            throw new Error("Not Allowed")
+        }
+        const user = await User.findOneAndUpdate({ _id: userId }, data, {
+            returnDocument: "after",
+            runValidators: true
+        })
+        console.log(user)
         res.send("User Data updated")
     } catch (error) {
-        res.status(400).send("Something went wrong")
+        res.status(400).send("Update failed: " + error.message)
     }
 })
 
