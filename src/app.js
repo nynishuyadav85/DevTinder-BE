@@ -2,13 +2,22 @@ const express = require('express');
 const app = express();
 const connectDB = require('./config/database');
 const User = require('./models/user');
+const { ValidateSignUpData } = require('./utils/validation')
+const bcrypt = require('bcrypt')
 
 app.use(express.json())
 
 app.post('/signup', async (req, res) => {
-    const user = new User(req.body)
-
     try {
+        ValidateSignUpData(req)
+        const { firstName, lastName, email, password } = req.body
+        const hashPassword = await bcrypt.hash(password, 10)
+        const user = new User({
+            firstName,
+            lastName,
+            email,
+            password: hashPassword
+        })
         await user.save();
         res.send("Added Data in DB")
     } catch (error) {
