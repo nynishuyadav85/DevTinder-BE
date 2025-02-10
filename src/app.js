@@ -5,6 +5,7 @@ const User = require('./models/user');
 const { ValidateSignUpData } = require('./utils/validation')
 const bcrypt = require('bcrypt')
 const cookieparser = require('cookie-parser')
+const jwt = require('jsonwebtoken')
 app.use(express.json())
 app.use(cookieparser())
 
@@ -35,7 +36,8 @@ app.post('/login', async (req, res) => {
         }
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (isPasswordValid) {
-            res.cookie('token', "jhdbfskjbcskbcksbcwkbcskbksbvsjk")
+            const token = await jwt.sign({ _id: user._id }, '123ABC')
+            res.cookie('token', token)
             res.send("Logged In")
         } else {
             throw new Error("Password is not valid")
@@ -46,10 +48,24 @@ app.post('/login', async (req, res) => {
 
 })
 
-app.get('/profile', (req, res) => {
-    const cookies = req.cookies;
-    console.log(cookies)
-    res.send("Cookie stored")
+app.get('/profile', async (req, res) => {
+    try {
+        const cookies = req.cookies;
+        const { token } = cookies;
+        if (!token) {
+            throw new Error("Invalid token")
+        }
+        const decodeMessage = await jwt.verify(token, '123ABC')
+        const { _id } = decodeMessage
+        const user = await User.findById(_id);
+        if (!user) {
+            throw new Error("No User found")
+        }
+        res.send({ message: "Cookie stored", user });
+    } catch (error) {
+        res.status(400).send("Error: " + error.message)
+    }
+
 })
 
 app.get('/user', async (req, res) => {
@@ -83,7 +99,6 @@ app.delete('/user', async (req, res) => {
     const emailId = req.body.email;
 
     try {
-        console.log(emailId)
         await User.findOneAndDelete({ email: emailId })
         res.send("user Deleted")
     } catch (error) {
@@ -94,8 +109,6 @@ app.delete('/user', async (req, res) => {
 app.patch('/user/:userId', async (req, res) => {
     const userId = req.params.userId
     const data = req.body
-    console.log(userId)
-
     try {
         const ALLOWED_UPDATES = [
             "age",
@@ -107,7 +120,6 @@ app.patch('/user/:userId', async (req, res) => {
         const isUpdateAllowed = Object.keys(data).every((k) =>
             ALLOWED_UPDATES.includes(k)
         )
-        console.log(isUpdateAllowed)
         if (!isUpdateAllowed) {
             throw new Error("Not Allowed")
         }
@@ -115,7 +127,6 @@ app.patch('/user/:userId', async (req, res) => {
             returnDocument: "after",
             runValidators: true
         })
-        console.log(user)
         res.send("User Data updated")
     } catch (error) {
         res.status(400).send("Update failed: " + error.message)
