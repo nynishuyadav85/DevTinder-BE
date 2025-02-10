@@ -4,8 +4,9 @@ const connectDB = require('./config/database');
 const User = require('./models/user');
 const { ValidateSignUpData } = require('./utils/validation')
 const bcrypt = require('bcrypt')
-
+const cookieparser = require('cookie-parser')
 app.use(express.json())
+app.use(cookieparser())
 
 app.post('/signup', async (req, res) => {
     try {
@@ -34,6 +35,7 @@ app.post('/login', async (req, res) => {
         }
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (isPasswordValid) {
+            res.cookie('token', "jhdbfskjbcskbcksbcwkbcskbksbvsjk")
             res.send("Logged In")
         } else {
             throw new Error("Password is not valid")
@@ -42,6 +44,12 @@ app.post('/login', async (req, res) => {
         res.status(400).send("Invalid UserName or Password " + error.message)
     }
 
+})
+
+app.get('/profile', (req, res) => {
+    const cookies = req.cookies;
+    console.log(cookies)
+    res.send("Cookie stored")
 })
 
 app.get('/user', async (req, res) => {
