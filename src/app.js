@@ -5,7 +5,8 @@ const User = require('./models/user');
 const { ValidateSignUpData } = require('./utils/validation')
 const bcrypt = require('bcrypt')
 const cookieparser = require('cookie-parser')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { userAuth } = require('./middleware/auth');
 app.use(express.json())
 app.use(cookieparser())
 
@@ -48,19 +49,9 @@ app.post('/login', async (req, res) => {
 
 })
 
-app.get('/profile', async (req, res) => {
+app.get('/profile', userAuth, async (req, res) => {
     try {
-        const cookies = req.cookies;
-        const { token } = cookies;
-        if (!token) {
-            throw new Error("Invalid token")
-        }
-        const decodeMessage = await jwt.verify(token, '123ABC')
-        const { _id } = decodeMessage
-        const user = await User.findById(_id);
-        if (!user) {
-            throw new Error("No User found")
-        }
+        const user = req.user
         res.send({ message: "Cookie stored", user });
     } catch (error) {
         res.status(400).send("Error: " + error.message)
