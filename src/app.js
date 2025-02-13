@@ -5,7 +5,6 @@ const User = require('./models/user');
 const { ValidateSignUpData } = require('./utils/validation')
 const bcrypt = require('bcrypt')
 const cookieparser = require('cookie-parser')
-const jwt = require('jsonwebtoken');
 const { userAuth } = require('./middleware/auth');
 app.use(express.json())
 app.use(cookieparser())
@@ -35,9 +34,9 @@ app.post('/login', async (req, res) => {
         if (!user) {
             throw new Error("Email id  not Found")
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password)
+        const isPasswordValid = await user.validatePassword(password);
         if (isPasswordValid) {
-            const token = await jwt.sign({ _id: user._id }, '123ABC', { expiresIn: "7d" })
+            const token = await user.getJWT()
             res.cookie('token', token, { expires: new Date(Date.now() + 8 * 3600000) })
             res.send("Logged In")
         } else {
