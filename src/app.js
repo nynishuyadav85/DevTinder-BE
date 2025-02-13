@@ -59,6 +59,12 @@ app.get('/profile', userAuth, async (req, res) => {
 
 })
 
+app.post('/sendConnectionrequest', userAuth, (req, res) => {
+    const user = req.user
+    console.log("Sending Connection request")
+    res.send(user.firstName + "Sent a request")
+})
+
 app.get('/user', async (req, res) => {
     const emailId = req.body.email;
     if (!emailId) {
