@@ -37,8 +37,8 @@ app.post('/login', async (req, res) => {
         }
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (isPasswordValid) {
-            const token = await jwt.sign({ _id: user._id }, '123ABC')
-            res.cookie('token', token)
+            const token = await jwt.sign({ _id: user._id }, '123ABC', { expiresIn: "7d" })
+            res.cookie('token', token, { expires: new Date(Date.now() + 8 * 3600000) })
             res.send("Logged In")
         } else {
             throw new Error("Password is not valid")
