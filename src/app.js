@@ -64,22 +64,6 @@ app.post('/sendConnectionrequest', userAuth, (req, res) => {
     res.send(user.firstName + "Sent a request")
 })
 
-app.get('/user', async (req, res) => {
-    const emailId = req.body.email;
-    if (!emailId) {
-        return res.status(400).send("Email ID is required");
-    }
-    try {
-        const user = await User.findOne({ email: emailId })
-        if (user) {
-            res.send(user)
-        } else {
-            res.status(404).send("User not found");
-        }
-    } catch (error) {
-        res.status(500).send("Something went wrong");
-    }
-})
 
 app.get('/feed', async (req, res) => {
     try {
