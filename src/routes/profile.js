@@ -13,9 +13,7 @@ profileRouter.get('/profile', userAuth, async (req, res) => {
 
 })
 
-profileRouter.patch('/profile/edit', (req, res) => {
-
-})
+profileRouter.patch('/profile/edit', (req, res) => { })
 
 
 module.exports = profileRouter
