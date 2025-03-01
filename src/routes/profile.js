@@ -13,7 +13,19 @@ profileRouter.get('/profile', userAuth, async (req, res) => {
 
 })
 
-profileRouter.patch('/profile/edit', (req, res) => { })
+profileRouter.patch('/profile/edit', userAuth, (req, res) => {
+    try {
+        if (!validateEditProfileData(req)) {
+            throw new Error("Invalid Edit Request")
+        }
+
+        const loggedInUser = req.user
+        Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
+        res.send(`${loggedInUser.firstName}, your Profile updated successfully`)
+    } catch (error) {
+        res.status(400).send("Error : + ")
+    }
+})
 
 
 module.exports = profileRouter
