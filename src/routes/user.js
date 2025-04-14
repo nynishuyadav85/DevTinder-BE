@@ -11,7 +11,8 @@ userRouter.get('/users/requests/received', userAuth, async (req, res) => {
         const connectionRequests = await ConnectionRequestModel.find({
             toUserId: loggedInUser._id,
             status: "intrested"
-        })
+        }).populate("fromUserId", ["firstName", "lastName", "age", "gender", "photoUrl", "about", "skills"])
+
         res.json({ message: "Data fetched successfully", data: connectionRequests })
     } catch (error) {
         res.status(400).send("ERROR: " + error.message)
