@@ -48,7 +48,7 @@ userRouter.get('/feed', userAuth, async (req, res) => {
 
     try {
         const loggedInUser = req.user
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
         const connectionRequest = await ConnectionRequestModel.find({
@@ -64,13 +64,12 @@ userRouter.get('/feed', userAuth, async (req, res) => {
             hideFromUserFeed.add(req.toUserId.toString())
         })
 
-        console.log(hideFromUserFeed)
         const users = await User.find({
             $and: [
                 { _id: { $nin: Array.from(hideFromUserFeed) } },
                 { _id: { $ne: loggedInUser._id } }
             ]
-        }).select("firstName , lastName , age ,  gender , photoUrl , about , skills").skip(skip).limit(limit)
+        }).select("firstName , lastName , age ,  gender , photoUrl , about , skills")?.skip(skip)?.limit(limit)
         res.send(users)
 
     } catch (error) {
