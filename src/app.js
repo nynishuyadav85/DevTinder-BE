@@ -3,6 +3,7 @@ const app = express();
 const connectDB = require('./config/database');
 const cookieparser = require('cookie-parser')
 const cors = require('cors')
+require('dotenv').config()
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -23,7 +24,7 @@ app.use('/', userRouter)
 
 connectDB().then(() => {
     console.log("DB connected")
-    app.listen(3000)
+    app.listen(process.env.PORT)
 }).catch((err) => {
     console.error("DB not connected")
 })
